@@ -1,0 +1,4 @@
+/* NativeWind v4 — required entry point for Tailwind CSS in React Native */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
