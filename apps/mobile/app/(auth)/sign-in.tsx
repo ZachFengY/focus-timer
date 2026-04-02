@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 
+import { AppLogo } from "../../components/ui/AppLogo";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function SignInScreen() {
@@ -48,22 +49,30 @@ export default function SignInScreen() {
     >
       {/* Logo */}
       <View style={{ marginBottom: 48 }}>
-        <Text
+        <View
           style={{
-            fontFamily: "Fraunces-SemiBold",
-            fontSize: 36,
-            color: "#FAFAF9",
-            letterSpacing: -1.2,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 14,
+            marginBottom: 12,
           }}
         >
-          FocusFlow
-        </Text>
+          <AppLogo size={56} />
+          <Text
+            style={{
+              fontSize: 32,
+              fontWeight: "700",
+              color: "#FAFAF9",
+              letterSpacing: -1.2,
+            }}
+          >
+            FocusFlow
+          </Text>
+        </View>
         <Text
           style={{
-            fontFamily: "DMSans-Regular",
             fontSize: 15,
             color: "#6B6B70",
-            marginTop: 6,
           }}
         >
           {isSignUp ? "创建账号，开始记录时间" : "欢迎回来，继续专注"}

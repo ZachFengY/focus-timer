@@ -27,6 +27,7 @@ function DonutChart({
   segments: DonutSegment[];
   size: number;
 }) {
+  const c = useColors();
   const stroke = size * 0.18;
 
   // Build arc slices using View transforms — approximate with borders trick
@@ -113,7 +114,7 @@ function DonutChart({
           width: size - stroke * 2,
           height: size - stroke * 2,
           borderRadius: (size - stroke * 2) / 2,
-          backgroundColor: "#16161A",
+          backgroundColor: c("bg-card"),
           position: "absolute",
         }}
       />
