@@ -1,12 +1,21 @@
-import { useColors } from "@focusflow/ui";
+import { useColors, useColorMode } from "@focusflow/ui";
 import { Pressable, Text, View } from "react-native";
 
 import { useTimerStore } from "../../stores/timerStore";
 
 export function ModeToggle() {
   const c = useColors();
-  const { mode, setMode, status } = useTimerStore();
-  const disabled = status !== "idle";
+  const colorMode = useColorMode();
+  const { mode, setMode, status, stop } = useTimerStore();
+  // dark: bg-card (#16161A) · light: bg-elevated (#EEEEF3) — per Pencil design
+  const containerBg = colorMode === "dark" ? c("bg-card") : c("bg-elevated");
+
+  const handlePress = (m: "countup" | "countdown") => {
+    if (m === mode) return;
+    // If a session is running/paused, stop it before switching modes
+    if (status !== "idle") stop();
+    setMode(m);
+  };
 
   return (
     <View
@@ -15,7 +24,7 @@ export function ModeToggle() {
         padding: 4,
         gap: 4,
         borderRadius: 100,
-        backgroundColor: c("bg-elevated"),
+        backgroundColor: containerBg,
         borderWidth: 1,
         borderColor: c("border-subtle"),
       }}
@@ -25,24 +34,27 @@ export function ModeToggle() {
         return (
           <Pressable
             key={m}
-            onPress={() => !disabled && setMode(m)}
-            style={{
-              paddingHorizontal: 20,
-              paddingVertical: 8,
-              borderRadius: 100,
-              backgroundColor: isActive ? c("accent-indigo") : "transparent",
-            }}
+            onPress={() => handlePress(m)}
+            style={({ pressed }) => ({ opacity: pressed ? 0.75 : 1 })}
           >
-            <Text
+            <View
               style={{
-                fontSize: 13,
-                fontWeight: "600",
-                color: isActive ? "#FFFFFF" : c("text-secondary"),
-                fontFamily: "DMSans-SemiBold",
+                paddingHorizontal: 20,
+                paddingVertical: 8,
+                borderRadius: 100,
+                backgroundColor: isActive ? c("accent-indigo") : "transparent",
               }}
             >
-              {m === "countup" ? "正计时" : "倒计时"}
-            </Text>
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontWeight: isActive ? "600" : "500",
+                  color: isActive ? "#FFFFFF" : c("text-secondary"),
+                }}
+              >
+                {m === "countup" ? "正计时" : "倒计时"}
+              </Text>
+            </View>
           </Pressable>
         );
       })}

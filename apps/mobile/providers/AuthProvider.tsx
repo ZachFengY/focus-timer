@@ -14,17 +14,40 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
+import { Platform } from "react-native";
 
 const API_BASE =
   process.env["EXPO_PUBLIC_API_BASE_URL"] ?? "http://localhost:3000";
 const TOKEN_KEY = "focusflow_auth_token";
+
+// expo-secure-store is native-only; fall back to localStorage on web
+const storage = {
+  async getItem(key: string): Promise<string | null> {
+    if (Platform.OS === "web") return localStorage.getItem(key);
+    return SecureStore.getItemAsync(key);
+  },
+  async setItem(key: string, value: string): Promise<void> {
+    if (Platform.OS === "web") {
+      localStorage.setItem(key, value);
+      return;
+    }
+    return SecureStore.setItemAsync(key, value);
+  },
+  async deleteItem(key: string): Promise<void> {
+    if (Platform.OS === "web") {
+      localStorage.removeItem(key);
+      return;
+    }
+    return SecureStore.deleteItemAsync(key);
+  },
+};
 
 interface AuthUser {
   id: string;
   email: string;
 }
 
-interface AuthContextValue {
+export interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
@@ -54,19 +77,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const applyToken = useCallback(async (token: string) => {
     setAuthToken(token);
-    await SecureStore.setItemAsync(TOKEN_KEY, token);
+    await storage.setItem(TOKEN_KEY, token);
   }, []);
 
   const clearToken = useCallback(async () => {
     setAuthToken(null);
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    await storage.deleteItem(TOKEN_KEY);
   }, []);
 
   // Restore session on mount
   useEffect(() => {
     (async () => {
       try {
-        const stored = await SecureStore.getItemAsync(TOKEN_KEY);
+        const stored = await storage.getItem(TOKEN_KEY);
         if (!stored) return;
 
         // Validate token is still valid

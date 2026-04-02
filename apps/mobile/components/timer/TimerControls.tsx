@@ -7,6 +7,7 @@
  * - No duration calculation here — that's the store's job
  */
 
+import { Ionicons } from "@expo/vector-icons";
 import { useCreateTimeRecord } from "@focusflow/api-client";
 import { useColors } from "@focusflow/ui";
 import { ActivityIndicator, Pressable, View } from "react-native";
@@ -50,17 +51,20 @@ export function TimerControls() {
   const accentGlow = {
     shadowColor: c("accent-indigo"),
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
     elevation: 12,
   };
   const cardShadow = {
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.12,
     shadowRadius: 6,
     elevation: 4,
   };
+
+  const playIcon =
+    status === "running" ? "pause" : status === "paused" ? "play" : "play";
 
   return (
     <View
@@ -85,13 +89,16 @@ export function TimerControls() {
             borderColor: c("border-subtle"),
             alignItems: "center",
             justifyContent: "center",
+            opacity: status === "idle" ? 0.4 : 1,
           },
           cardShadow,
         ]}
       >
         {isPending ? (
           <ActivityIndicator size="small" color={c("accent-indigo")} />
-        ) : null}
+        ) : (
+          <Ionicons name="stop" size={20} color={c("text-secondary")} />
+        )}
       </Pressable>
 
       {/* Play / Pause (primary) */}
@@ -112,7 +119,9 @@ export function TimerControls() {
           },
           accentGlow,
         ]}
-      />
+      >
+        <Ionicons name={playIcon} size={28} color="#FFFFFF" />
+      </Pressable>
 
       {/* Bookmark (save note — future feature) */}
       <Pressable
@@ -129,7 +138,13 @@ export function TimerControls() {
           },
           cardShadow,
         ]}
-      />
+      >
+        <Ionicons
+          name="bookmark-outline"
+          size={20}
+          color={c("text-secondary")}
+        />
+      </Pressable>
     </View>
   );
 }
