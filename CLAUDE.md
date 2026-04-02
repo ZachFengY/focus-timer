@@ -1,4 +1,6 @@
-# FocusFlow — Claude 工作规范
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## 原有规则（保留）
 
@@ -16,7 +18,7 @@
 
 - Monorepo: Turborepo + pnpm workspaces
 - 后端: Hono + TypeScript（`services/api/`）
-- 移动端: Expo + React Native（`apps/mobile/`）
+- 移动端: Expo SDK 51 + React Native 0.74（`apps/mobile/`）
 - 共享类型: Zod schemas（`packages/types/`）
 - API 客户端: TanStack Query hooks（`packages/api-client/`）
 - 设计系统: NativeWind + 主题 tokens（`packages/ui/`）
@@ -35,6 +37,8 @@ pnpm dev:api                  # 启动后端 → localhost:3000
 pnpm dev:mobile               # 启动 Expo
 pnpm --filter @focusflow/api test          # 后端测试（Vitest）
 pnpm --filter @focusflow/mobile test       # 前端测试（Jest）
+pnpm --filter @focusflow/api test -- --reporter=verbose src/__tests__/routes/auth.test.ts  # 单文件测试（后端）
+pnpm --filter @focusflow/mobile test -- --testPathPattern=timerStore  # 单文件测试（前端）
 pnpm typecheck                # 全项目类型检查
 pnpm lint                     # 全项目 lint
 ```
@@ -47,6 +51,8 @@ pnpm lint                     # 全项目 lint
 **测试账号（seed 数据自动注入）：**
 
 - email: `test@focusflow.app` / password: `Test123456`
+
+**iOS 模拟器注意：** 如果本机开了代理（如 Clash），Metro 连接会被拦截。需在 `AppDelegate.mm` 把 localhost 硬编码为本机 LAN IP（如 `192.168.x.x:8081`），或临时关闭代理。
 
 ---
 
@@ -70,6 +76,8 @@ duration = Date.now() - startTime - totalPausedMs;
 // ❌ 错误：不能只依赖 setInterval
 ```
 
+`timerStore` 的 `getElapsedSeconds()` 始终从 `startTime` 时间戳计算，`setInterval` 只用于强制 re-render（每秒 tick）。
+
 ### 内存存储（本地开发）
 
 `services/api/src/db/memory-store.ts` — 零依赖本地 DB，服务重启数据重置。
@@ -79,6 +87,12 @@ duration = Date.now() - startTime - totalPausedMs;
 
 Subject（分类）只能软删除：`isDeleted = true`，历史数据必须保留。
 **禁止硬删 subjects**，会破坏历史 time_records 的外键关联。
+
+### 深色模式切换
+
+用 `Appearance.setColorScheme()` 覆盖系统主题，`useColorScheme()` 会在全 app 范围内自动重渲染。
+用户偏好持久化在 `apps/mobile/stores/preferencesStore.ts`（AsyncStorage），App 启动时通过 `onRehydrateStorage` 恢复。
+**不要**改用 React Context 方案——`packages/ui` 没有 `@types/react`，会 TS7016 报错。
 
 ---
 
@@ -116,6 +130,11 @@ Supabase 迁移文件：`services/supabase/migrations/`，执行顺序：001 →
 ### 测试隔离
 
 每个后端测试前 `db.clear()`，已在 `src/__tests__/setup.ts` 全局配置，不要手动调用。
+
+### 前端 Jest 注意事项
+
+- `transformIgnorePatterns` 必须包含 `\\.pnpm`，否则 pnpm 虚拟链接路径的包（如 `@react-native/js-polyfills`）不会被 Babel 转译
+- `@expo/vector-icons` 需在 `jest.setup.ts` 中 mock，用 `React.createElement(Text, ...)` 而非直接调用（Text 在 Jest 中是 class）
 
 ---
 
@@ -175,13 +194,22 @@ import { useColors } from "../../packages/ui/src/...";
 
 ## 响应式布局
 
-`useBreakpoint()` 返回的 `navType` 决定导航组件：
+`useBreakpoint()` 返回的 `navType` 决定导航组件（见 `app/(app)/_layout.tsx`）：
 
 - `tabbar` → `PhoneTabBar`（< 768px）
 - `drawer` → `TabletDrawer`（768–1279px）
 - `sidebar` → `DesktopSidebar`（≥ 1280px）
 
 **禁止用 `Platform.OS` 判断布局**，应基于尺寸断点。
+
+### Expo Router 路径注意
+
+`usePathname()` 会剥去路由组前缀：`/(app)/stats` → `/stats`，`/(app)` → `/`。
+做路由匹配（如 tab bar 的 active 判断）时需先用 `strip` 函数标准化：
+
+```typescript
+const strip = (p: string) => p.replace(/^\/\([^)]+\)/, "") || "/";
+```
 
 ---
 
@@ -198,18 +226,26 @@ style={{ backgroundColor: c('bg-card'), borderColor: c('border-subtle') }}
 style={{ backgroundColor: '#16161A' }}
 ```
 
+主要 token（`packages/ui/src/theme/tokens.ts`）：
+
+| Token           | Dark      | Light     |
+| --------------- | --------- | --------- |
+| `bg-page`       | `#0B0B0E` | `#F4F4F8` |
+| `bg-card`       | `#16161A` | `#FFFFFF` |
+| `bg-elevated`   | `#1A1A1E` | `#EEEEF3` |
+| `border-subtle` | `#2A2A2E` | `#E5E5EA` |
+| `accent-indigo` | `#6366F1` | `#6366F1` |
+| `text-tertiary` | `#4A4A50` | `#9E9EA5` |
+
 设计稿：`pencil-new.pen`（Pencil 工具），5 个暗色页面 + 1 个亮色 Home + Design System 文档。
 
 ---
 
 ## 尚未实现（TODO）
 
-- [ ] `apps/mobile/app/(auth)/sign-in.tsx` — 登录/注册页
-- [ ] `apps/mobile/app/(app)/stats/` — 统计页
-- [ ] `apps/mobile/app/(app)/calendar/` — 日历页
-- [ ] `apps/mobile/app/(app)/goals/` — 目标页
-- [ ] `apps/mobile/app/(app)/settings/` — 设置页
+- [ ] `apps/mobile/app/(auth)/sign-in.tsx` — 登录/注册页（文件存在但为空壳）
 - [ ] Supabase 迁移（替换内存存储）
 - [ ] EAS Build 配置
-- [ ] AI 分析完整接入
+- [ ] AI 分析完整接入（`/v1/ai` 路由已存在，前端未接入）
 - [ ] 数据导出（图片/PDF）
+- [ ] 统计/日历/目标页接真实 API（当前使用 `apps/mobile/lib/mock.ts` mock 数据）
