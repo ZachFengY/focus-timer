@@ -30,6 +30,12 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": ["expo-router", "expo-secure-store"],
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/your-project-id"
+    },
     "experiments": {
       "typedRoutes": true
     }
