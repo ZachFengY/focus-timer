@@ -8406,7 +8406,8 @@
                           "fill": "#9E9EA5",
                           "content": "准备开始",
                           "fontFamily": "DM Sans",
-                          "fontSize": 13
+                          "fontSize": 13,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
