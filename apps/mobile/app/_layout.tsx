@@ -3,8 +3,8 @@ import "../global.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
 
+import { SplashGate } from "../components/SplashGate";
 import { AuthProvider } from "../providers/AuthProvider";
 import { NotificationProvider } from "../providers/NotificationProvider";
 
@@ -22,15 +22,10 @@ const queryClient = new QueryClient({
 });
 
 export default function RootLayout() {
-  // Fonts skipped for local dev — using system fonts
-  // Add expo-font loading here when font files are available
-  useEffect(() => {
-    void SplashScreen.hideAsync();
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <SplashGate />
         <NotificationProvider>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(auth)" />
