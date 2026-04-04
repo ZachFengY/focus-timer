@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
+. "$(dirname -- "$0")/path.sh"
 . "$(dirname -- "$0")/_/husky.sh"
 
 # Validate commit message format (Conventional Commits)
-pnpm commitlint --edit "$1"
+pnpm_cmd commitlint --edit "$1"

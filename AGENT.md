@@ -1,7 +1,7 @@
 # Source of truth
 
 - openapi.yaml
-- docs/contracts/\*
+- docs/contracts/
 - migrations
 
 # Rules

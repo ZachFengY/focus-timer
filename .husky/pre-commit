@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
+. "$(dirname -- "$0")/path.sh"
 . "$(dirname -- "$0")/_/husky.sh"
 
 # Run lint-staged (format + lint changed files only)
-pnpm lint-staged
+pnpm_cmd lint-staged
