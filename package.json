@@ -12,6 +12,8 @@
     "dev": "turbo run dev",
     "dev:api": "turbo run dev --filter=@focusflow/api",
     "dev:mobile": "turbo run dev --filter=@focusflow/mobile",
+    "dev:stop": "(lsof -t -i :3000 || true) | xargs -n1 kill -9 2>/dev/null || true && (lsof -t -i :8081 || true) | xargs -n1 kill -9 2>/dev/null || true && (lsof -t -i :8082 || true) | xargs -n1 kill -9 2>/dev/null || true",
+    "dev:ios:all": "pnpm run dev:stop && pnpm --filter @focusflow/api dev & sleep 2 && pnpm --filter @focusflow/mobile exec expo start --dev-client --port 8081 --ios",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
