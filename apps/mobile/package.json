@@ -15,6 +15,9 @@
     "test:coverage": "jest --coverage --watchAll=false",
     "typecheck": "tsc --noEmit",
     "lint": "eslint app components hooks stores --ext .ts,.tsx",
+    "generate-splash": "node scripts/render-splash.mjs",
+    "transparent-adaptive-icon": "node scripts/transparent-adaptive-icon-corners.mjs",
+    "android:emulator": "node scripts/run-android-emulator.cjs",
     "android": "expo run:android",
     "ios": "expo run:ios"
   },
@@ -59,6 +62,7 @@
     "@types/react": "~18.2.79",
     "jest": "^29.7.0",
     "jest-expo": "~51.0.0",
+    "pngjs": "^3.4.0",
     "tailwindcss": "^3.4.15",
     "typescript": "^5.6.0"
   }

@@ -9,13 +9,14 @@
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
+      "resizeMode": "native",
       "backgroundColor": "#0B0B0E"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.focusflow.mobile"
+      "bundleIdentifier": "app.focusflow.mobile",
+      "icon": "./assets/icon.png"
     },
     "android": {
       "adaptiveIcon": {

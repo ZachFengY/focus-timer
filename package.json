@@ -19,7 +19,7 @@
     "test": "turbo run test",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
-    "prepare": "husky"
+    "prepare": "husky && node scripts/patch-expo-modules-core-android.cjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
